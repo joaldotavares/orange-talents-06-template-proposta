@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import br.com.zup.proposta.proposta.dto.VencimentoDTO;
+import br.com.zup.proposta.proposta.dto.ViagemDTO;
 import br.com.zup.proposta.proposta.model.enums.StatusCartao;
 
 @Entity
@@ -30,21 +31,26 @@ public class Cartao {
 
 	@Id
 	private String id;
-	
+
 	@NotBlank
 	private String titular;
-	
+
 	@NotNull
 	private BigDecimal limite;
-	
+
 	@JsonFormat(pattern = "yyyy-MM-dd@HH:mm:ss", shape = Shape.STRING)
 	private LocalDateTime emitidoEm;
-	
+
 	@NotNull
 	@Valid
 	@OneToMany(mappedBy = "cartao", cascade = CascadeType.MERGE)
-	private List<Bloqueio> bloqueios = new ArrayList<>();	
-	
+	private List<Bloqueio> bloqueios = new ArrayList<>();
+
+	@NotNull
+	@Valid
+	@OneToMany(mappedBy = "cartao", cascade = CascadeType.MERGE)
+	private List<Viagem> viagens = new ArrayList<>();
+
 	@NotNull
 	@Valid
 	@OneToMany(mappedBy = "cartao")
@@ -54,12 +60,12 @@ public class Cartao {
 	@Valid
 	@OneToOne(cascade = CascadeType.MERGE)
 	private Vencimento vencimento;
-	
+
 	@NotNull
 	@Valid
 	@OneToOne
 	private Proposta idProposta;
-	
+
 	@Enumerated(EnumType.STRING)
 	private StatusCartao statusCartao = StatusCartao.ATIVO;
 
@@ -67,7 +73,8 @@ public class Cartao {
 		super();
 	}
 
-	public Cartao(String id, LocalDateTime emitidoEm, String titular, BigDecimal limite, VencimentoDTO vencimento, Proposta idProposta) {
+	public Cartao(String id, LocalDateTime emitidoEm, String titular, BigDecimal limite, VencimentoDTO vencimento,
+			Proposta idProposta) {
 		super();
 		this.id = id;
 		this.emitidoEm = emitidoEm;
@@ -75,7 +82,7 @@ public class Cartao {
 		this.vencimento = vencimento.toModel(this);
 		this.idProposta = idProposta;
 	}
-	
+
 	public String getId() {
 		return id;
 	}
@@ -107,16 +114,21 @@ public class Cartao {
 	public void adicionarBiometria(@Valid Biometria biomeria) {
 		this.biometrias.add(biomeria);
 	}
-	
+
 	public boolean verificarBloqueio() {
 		return this.statusCartao.equals(StatusCartao.BLOQUEADO);
 	}
-	
+
 	public boolean bloquearCartao(HttpServletRequest request) {
-		if(statusCartao == StatusCartao.ATIVO) {
+		if (statusCartao == StatusCartao.ATIVO) {
 			this.statusCartao = StatusCartao.BLOQUEADO;
 			this.bloqueios.add(new Bloqueio(request.getRemoteAddr(), request.getHeader("User-Agent"), this));
 		}
 		return false;
+	}
+
+	public void notificarViagem(HttpServletRequest request, ViagemDTO viagem) {
+		this.viagens.add(new Viagem(viagem.getDestino(), viagem.getDataTermino(), request.getRemoteAddr(),
+				request.getHeader("User-Agent"), this));
 	}
 }
