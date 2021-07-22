@@ -20,5 +20,4 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.hasAuthority("SCOPE_proposta:write").anyRequest().authenticated())
 				.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 	}
-
 }
