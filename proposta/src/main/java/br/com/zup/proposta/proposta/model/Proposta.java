@@ -92,7 +92,7 @@ public class Proposta {
 	}
 	
 	public CartaoRequestDTO toCartaoRequestDTO() {
-		return new CartaoRequestDTO(documento, nome, id);
+		return new CartaoRequestDTO(this);
 	}
 
 	public void toCartaoDTO(Cartao cartao) {

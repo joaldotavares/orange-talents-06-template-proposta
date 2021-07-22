@@ -33,7 +33,7 @@ public class BiometriaController {
 	}
 
 	@PostMapping("/{id}")
-	public ResponseEntity<?> inserir(@RequestBody @Valid BiometriaDTO biometriaDto, @PathVariable("id") Long idCartao,
+	public ResponseEntity<?> inserir(@RequestBody @Valid BiometriaDTO biometriaDto, @PathVariable("id") String idCartao,
 			UriComponentsBuilder builder) {
 		
 		Cartao cartao = extracted(idCartao);
@@ -47,7 +47,7 @@ public class BiometriaController {
 		return ResponseEntity.created(builder.path("/biometria/{id}").build(biometria.getId())).build();
 	}
 
-	private Cartao extracted(Long id) {
+	private Cartao extracted(String id) {
 		Cartao cartao = cartaoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		return cartao;
 	}

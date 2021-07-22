@@ -25,10 +25,10 @@ public class Bloqueio {
 	private LocalDateTime bloqueadoEm;
 
 	@NotBlank
-	private String sistemaResponsavel;
+	private String clienteIp;
 
-	@NotNull
-	private boolean ativo;
+	@NotBlank
+	private String userAgente;
 
 	@NotNull
 	@ManyToOne
@@ -38,15 +38,15 @@ public class Bloqueio {
 	public Bloqueio() {
 		super();
 	}
-
-	public Bloqueio(LocalDateTime bloqueadoEm, String sistemaResponsavel, boolean ativo, Cartao cartao) {
+	
+	public Bloqueio(String clienteIp, String userAgente, Cartao cartao) {
 		super();
-		this.bloqueadoEm = bloqueadoEm;
-		this.sistemaResponsavel = sistemaResponsavel;
-		this.ativo = ativo;
+		this.bloqueadoEm = LocalDateTime.now();
+		this.clienteIp = clienteIp;
+		this.userAgente = userAgente;
 		this.cartao = cartao;
 	}
-
+	
 	public Long getId() {
 		return id;
 	}
@@ -54,15 +54,7 @@ public class Bloqueio {
 	public LocalDateTime getBloqueadoEm() {
 		return bloqueadoEm;
 	}
-
-	public String getSistemaResponsavel() {
-		return sistemaResponsavel;
-	}
-
-	public boolean isAtivo() {
-		return ativo;
-	}
-
+	
 	public Cartao getCartao() {
 		return cartao;
 	}

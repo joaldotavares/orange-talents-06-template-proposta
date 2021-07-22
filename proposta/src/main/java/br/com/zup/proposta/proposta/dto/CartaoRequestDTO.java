@@ -1,5 +1,7 @@
 package br.com.zup.proposta.proposta.dto;
 
+import br.com.zup.proposta.proposta.model.Proposta;
+
 public class CartaoRequestDTO {
 
 	private String documento;
@@ -12,11 +14,11 @@ public class CartaoRequestDTO {
 		super();
 	}
 
-	public CartaoRequestDTO(String documento, String nome, Long idProposta) {
+	public CartaoRequestDTO(Proposta proposta) {
 		super();
-		this.documento = documento;
-		this.nome = nome;
-		this.idProposta = idProposta;
+		this.documento = proposta.getDocumento();
+		this.nome = proposta.getNome();
+		this.idProposta = proposta.getId();
 	}
 
 	public String getDocumento() {
