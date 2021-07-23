@@ -29,8 +29,12 @@ public class Carteira {
 	@Valid
 	@ManyToOne
 	private Cartao cartao;
+	
+	public Carteira() {
+		super();
+	}
 
-	public Carteira(NomeCarteira nomeCarteira, @NotBlank @Email String email, @NotNull @Valid Cartao cartao) {
+	public Carteira(NomeCarteira nomeCarteira, String email, Cartao cartao) {
 		super();
 		this.nomeCarteira = nomeCarteira;
 		this.email = email;

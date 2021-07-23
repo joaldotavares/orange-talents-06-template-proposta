@@ -1,5 +1,6 @@
 package br.com.zup.proposta.proposta.controller;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -38,20 +39,32 @@ public class CarteiraController {
 		this.cartaoClient = cartaoClient;
 	}
 
-	@PostMapping("/{id}/carteiras")
-	public ResponseEntity<?> inserir(@PathVariable String id, @RequestBody @Valid CarteiraDTO carteiraDto,
+	@PostMapping("/paypal/{id}/carteiras")
+	public ResponseEntity<?> inserirPayPal(@PathVariable String id, @RequestBody @Valid CarteiraDTO carteiraDto,
 			UriComponentsBuilder builder) {
+		return associarCarteira(id, carteiraDto, builder);
+
+	}
+
+	@PostMapping("/samsungpay/{id}/carteiras")
+	public ResponseEntity<?> inserirSamsungPay(@PathVariable String id, @RequestBody @Valid CarteiraDTO carteiraDto,
+			UriComponentsBuilder builder) {
+		return associarCarteira(id, carteiraDto, builder);
+	}
+
+	@Transactional
+	private ResponseEntity<?> associarCarteira(String id, CarteiraDTO dto, UriComponentsBuilder builder) {
 		Cartao cartao = cartaoRepository.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-		if (cartao.associarCarteira(carteiraDto.getNomeCarteira())) {
+		if (cartao.associarCarteira(dto.getNomeCarteira())) {
 			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
 		}
 
 		try {
 
-			cartaoClient.asocciarCarteira(id, carteiraDto.carteiraSistema());
-			Carteira carteira = carteiraDto.toModel(cartao);
+			cartaoClient.asocciarCarteira(id, dto.carteiraSistema());
+			Carteira carteira = dto.toModel(cartao);
 			carteiraRepository.save(carteira);
 
 			return ResponseEntity
@@ -62,5 +75,6 @@ public class CarteiraController {
 			return ResponseEntity.status(e.status()).build();
 
 		}
+
 	}
 }
