@@ -12,7 +12,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().authorizeRequests(authorizeRequests -> authorizeRequests
-				.antMatchers(HttpMethod.GET, "/actuator/*").permitAll().antMatchers(HttpMethod.GET, "/proposta/")
+				.antMatchers(HttpMethod.GET, "/actuator/**").permitAll().antMatchers(HttpMethod.GET, "/proposta/")
 				.hasAuthority("SCOPE_proposta:read").antMatchers(HttpMethod.POST, "/proposta/")
 				.hasAuthority("SCOPE_proposta:write").antMatchers(HttpMethod.POST, "/biometrias")
 				.hasAuthority("SCOPE_biometria:write").antMatchers(HttpMethod.POST, "/api/cartoes/{id}/biometrias/")
