@@ -8,16 +8,16 @@ import javax.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
-public class ViagemDTO {
+public class NotificacaoViagem {
 
 	@NotBlank
 	private String destino;
 
-	@JsonFormat(pattern = "yyyy-MM-dd", shape = Shape.STRING)
+	@JsonFormat(pattern = "yyyy-MM-dd@HH:mm:ss", shape = Shape.STRING)
 	@Future
 	private LocalDateTime dataTermino;
 
-	public ViagemDTO(String destino, LocalDateTime dataTermino) {
+	public NotificacaoViagem(String destino, LocalDateTime dataTermino) {
 		super();
 		this.destino = destino;
 		this.dataTermino = dataTermino;
@@ -31,7 +31,4 @@ public class ViagemDTO {
 		return dataTermino;
 	}
 
-	public NotificacaoViagem toNotificacao() {
-		return new NotificacaoViagem(destino, dataTermino);
-	}
 }
