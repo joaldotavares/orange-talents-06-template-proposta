@@ -25,6 +25,8 @@ import br.com.zup.proposta.proposta.interfaces.CartaoClient;
 import br.com.zup.proposta.proposta.model.Proposta;
 import br.com.zup.proposta.proposta.model.enums.StatusProposta;
 import br.com.zup.proposta.proposta.repository.PropostaRepository;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 
 @RestController
 @RequestMapping(value = "/proposta")
@@ -35,16 +37,22 @@ public class PropostaController {
 	private final PropostaRepository propostaRepository;
 
 	private final CartaoClient cartaoClient;
+	
+	private Tracer tracer;
 
-	public PropostaController(PropostaRepository propostaRepository, CartaoClient cartaoClient) {
+	public PropostaController(PropostaRepository propostaRepository, CartaoClient cartaoClient, Tracer tracer) {
 		super();
 		this.propostaRepository = propostaRepository;
 		this.cartaoClient = cartaoClient;
+		this.tracer = tracer;
 	}
 
 	@PostMapping
 	public ResponseEntity<?> inserir(@RequestBody @Valid PropostaDTO dto, UriComponentsBuilder builder) {
 
+		Span span = tracer.buildSpan("Proposta Criada").start();
+		span.setTag("Proposta para o ", dto.getDocumento());
+		
 		if (verificarDocumento(dto.getDocumento())) {
 			logger.error("Erro ao inserir proposta com o CPF/CNPJ={}", dto.getDocumento());
 			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
