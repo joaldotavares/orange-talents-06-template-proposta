@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import br.com.zup.proposta.proposta.dto.VencimentoDTO;
 import br.com.zup.proposta.proposta.dto.ViagemDTO;
+import br.com.zup.proposta.proposta.model.enums.NomeCarteira;
 import br.com.zup.proposta.proposta.model.enums.StatusCartao;
 
 @Entity
@@ -60,6 +61,11 @@ public class Cartao {
 	@Valid
 	@OneToOne(cascade = CascadeType.MERGE)
 	private Vencimento vencimento;
+
+	@NotNull
+	@Valid
+	@OneToMany(mappedBy = "cartao")
+	private Set<Carteira> carteira = new HashSet<Carteira>();
 
 	@NotNull
 	@Valid
@@ -130,5 +136,9 @@ public class Cartao {
 	public void notificarViagem(HttpServletRequest request, ViagemDTO viagem) {
 		this.viagens.add(new Viagem(viagem.getDestino(), viagem.getDataTermino(), request.getRemoteAddr(),
 				request.getHeader("User-Agent"), this));
+	}
+
+	public boolean associarCarteira(NomeCarteira nomeCarteira) {
+		return carteira.stream().allMatch(carteira -> carteira.getNomeCarteira().equals(nomeCarteira));
 	}
 }

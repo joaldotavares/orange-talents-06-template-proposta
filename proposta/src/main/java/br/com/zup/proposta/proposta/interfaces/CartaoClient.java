@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import br.com.zup.proposta.proposta.dto.CartaoDTO;
 import br.com.zup.proposta.proposta.dto.CartaoRequestDTO;
+import br.com.zup.proposta.proposta.dto.CarteiraRequestDTO;
 import br.com.zup.proposta.proposta.dto.NotificacaoViagem;
 import feign.Response;
 
@@ -25,4 +26,6 @@ public interface CartaoClient {
 	@RequestMapping(method = RequestMethod.POST, value = "/{id}/avisos")
 	public String notificarSistema(@PathVariable String id, @RequestBody NotificacaoViagem sistema);
 
+	@RequestMapping(method = RequestMethod.POST, value = "/{id}/carteiras")
+	public String asocciarCarteira(@PathVariable String id, @RequestBody CarteiraRequestDTO sistema);
 }
