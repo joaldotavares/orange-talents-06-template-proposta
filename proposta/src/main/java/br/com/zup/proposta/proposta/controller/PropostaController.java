@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,8 +26,6 @@ import br.com.zup.proposta.proposta.interfaces.CartaoClient;
 import br.com.zup.proposta.proposta.model.Proposta;
 import br.com.zup.proposta.proposta.model.enums.StatusProposta;
 import br.com.zup.proposta.proposta.repository.PropostaRepository;
-import io.opentracing.Span;
-import io.opentracing.Tracer;
 
 @RestController
 @RequestMapping(value = "/proposta")
@@ -37,28 +36,28 @@ public class PropostaController {
 	private final PropostaRepository propostaRepository;
 
 	private final CartaoClient cartaoClient;
-	
-	private Tracer tracer;
 
-	public PropostaController(PropostaRepository propostaRepository, CartaoClient cartaoClient, Tracer tracer) {
+	@Value("${criptografia.secret}")
+	private String secret;
+
+	@Value("${criptografia.salt}")
+	private String salt;
+
+	public PropostaController(PropostaRepository propostaRepository, CartaoClient cartaoClient) {
 		super();
 		this.propostaRepository = propostaRepository;
 		this.cartaoClient = cartaoClient;
-		this.tracer = tracer;
 	}
 
 	@PostMapping
 	public ResponseEntity<?> inserir(@RequestBody @Valid PropostaDTO dto, UriComponentsBuilder builder) {
 
-		Span span = tracer.buildSpan("Proposta Criada").start();
-		span.setTag("Proposta para o ", dto.getDocumento());
-		
-		if (verificarDocumento(dto.getDocumento())) {
+		Proposta proposta = dto.toModel(secret, salt);
+		if (proposta.verificarProposta(propostaRepository, secret, salt)) {
 			logger.error("Erro ao inserir proposta com o CPF/CNPJ={}", dto.getDocumento());
 			return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
 		}
 
-		Proposta proposta = dto.toModel();
 		propostaRepository.save(proposta);
 		logger.info("Cadastrada com sucesso a proposta com o CPF/CNPJ={}", proposta.getDocumento());
 
@@ -91,9 +90,5 @@ public class PropostaController {
 		}
 
 		logger.info("Fim de tudo");
-	}
-
-	private boolean verificarDocumento(String documento) {
-		return propostaRepository.findByDocumento(documento).isPresent();
 	}
 }

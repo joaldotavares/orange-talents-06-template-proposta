@@ -1,6 +1,7 @@
 package br.com.zup.proposta.proposta.model;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,8 +19,10 @@ import javax.validation.constraints.PositiveOrZero;
 
 import org.springframework.util.Assert;
 
+import br.com.zup.proposta.proposta.dto.CartaoDTO;
 import br.com.zup.proposta.proposta.dto.CartaoRequestDTO;
 import br.com.zup.proposta.proposta.model.enums.StatusProposta;
+import br.com.zup.proposta.proposta.repository.PropostaRepository;
 
 @Entity
 public class Proposta {
@@ -52,7 +55,7 @@ public class Proposta {
 
 	@Enumerated(EnumType.STRING)
 	private StatusProposta status;
-	
+
 	@OneToOne(cascade = CascadeType.MERGE)
 	private Cartao cartao;
 
@@ -85,16 +88,33 @@ public class Proposta {
 	public String getNome() {
 		return nome;
 	}
+	
+	public Cartao getCartao() {
+		return cartao;
+	}
+
+	public boolean verificarProposta(PropostaRepository propostaRepository, String secret, String salt) {
+		Optional<Proposta> proposta = propostaRepository.findByDocumento(this.documento);
+		if (proposta.isPresent()) {
+			return true;
+		}
+		return false;
+	}
 
 	public void atualizarStatusProposta(StatusProposta statusProposta) {
 		Assert.isTrue(this.status.equals(StatusProposta.NAO_ELEGIVEL), "Essa proposta é ELEGIVEL");
 		this.status = statusProposta;
 	}
-	
+
+	public void associarCartao(CartaoDTO cartaoDto) {
+		Assert.notNull(cartaoDto.toModel(this), "Não deve ser nulo");
+		this.cartao = cartaoDto.toModel(this);
+	}
+
 	public CartaoRequestDTO toCartaoRequestDTO() {
 		return new CartaoRequestDTO(this);
 	}
-
+	
 	public void toCartaoDTO(Cartao cartao) {
 		this.cartao = cartao;
 	}
